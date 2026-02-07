@@ -1,6 +1,6 @@
 【网络环境诊断报告】
 日期: 2026年2月7日
-
+3
 【问题现象】
 ✗ pip安装任何包时报错: ProxyError('Cannot connect to proxy.')
 ✓ 浏览器网络正常
