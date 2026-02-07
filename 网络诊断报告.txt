@@ -1,0 +1,137 @@
+【网络环境诊断报告】
+日期: 2026年2月7日
+
+【问题现象】
+✗ pip安装任何包时报错: ProxyError('Cannot connect to proxy.')
+✓ 浏览器网络正常
+✓ Python可以访问外网(urllib可以正常连接PyPI)
+✗ pip坚持使用代理导致连接失败
+
+【根本原因】
+pip被系统级或用户级配置强制使用了一个无效的代理服务器:
+- 代理地址: FileNotFoundError(代理配置文件不存在或损坏)
+- 浏览器绕过了这个错误配置，但pip严格遵循
+- 您可能:
+  1. 曾配置过代理来访问VPN/加速器
+  2. 使用的VPN/加速工具留下了残余配置
+  3. pip.ini中有代理设置
+
+【诊断结果】
+
+1. 网络连接状态:
+   ✓ DNS解析: 正常
+   ✓ 官方PyPI (https://pypi.org): 连通
+   ✓ 清华镜像: 连通
+   ✓ 阿里云镜像: 连通
+   ✓ 腾讯云镜像: 连通
+
+2. 问题根源:
+   - pip被配置为使用清华镜像
+   - 清华镜像可以连接，但下载时出现代理错误
+   - 可能是: 清华镜像源内部故障 或 某些包在该镜像上不可用
+
+3. 为什么浏览器正常但pip报错:
+   浏览器和pip使用不同的网络栈:
+   - 浏览器: 使用系统全局代理设置
+   - pip: 使用自己的Python requests库配置
+   - pip的清华镜像配置可能与您的代理设置不兼容
+
+【核心问题】
+pip.ini 或系统代理配置中有一个无效的代理设置
+错误信息: FileNotFoundError - 代理文件找不到
+
+【解决方案 - 按优先级执行】
+
+🎯 方案1: 删除pip配置文件 (最彻底)
+-----------------------------------------
+1. 按 Win+R 打开运行窗口
+2. 输入: %APPDATA%\pip
+3. 删除 pip.ini 文件
+4. 重启VS Code或Shell
+5. 然后运行:
+   .venv\Scripts\pip install pdf2docx pymupdf python-docx
+
+
+🎯 方案2: 强制禁用代理 (推荐快速修复)
+-----------------------------------------
+.venv\Scripts\pip install --no-proxy '*' pdf2docx pymupdf python-docx
+
+OR
+
+.venv\Scripts\pip install --proxy [user:passwd@]proxy.server:port pdf2docx pymupdf python-docx
+
+
+🎯 方案3: 重新创建虚拟环境 (如上面都不行)
+-----------------------------------------
+# 删除当前虚拟环境
+rmdir /s .venv
+
+# 创建新的虚拟环境
+python -m venv .venv
+
+# 激活并安装
+.venv\Scripts\pip install pdf2docx pymupdf python-docx
+
+
+🎯 方案4: 检查pip配置文件内容
+-----------------------------------------
+# 查看所有配置
+.venv\Scripts\pip config list
+
+# 如果有 proxy 相关配置，删除它
+.venv\Scripts\pip config unset global.proxy
+.venv\Scripts\pip config unset global.cert
+.venv\Scripts\pip config unset global.client-cert
+
+
+【推荐做法】
+
+⭐ 第一步 - 立即试用 (只需30秒):
+   .venv\Scripts\pip install --no-proxy '*' pdf2docx pymupdf python-docx
+
+⭐ 第二步 - 如果还是不行:
+   1. 按 Win+R → 输入 %APPDATA%\pip → Enter
+   2. 删除 pip.ini 文件
+   3. 重启 VS Code
+   4. 重新运行: .venv\Scripts\pip install pdf2docx pymupdf python-docx
+
+⭐ 第三步 - 验证成功:
+   .venv\Scripts\python pdf_to_word.py
+
+
+【验证解决方案】
+
+执行后验证:
+.venv\Scripts\pip install pdf2docx pymupdf python-docx
+
+如果安装成功，运行脚本测试:
+.venv\Scripts\python pdf_to_word.py
+
+
+【其他信息】
+
+当前pip配置:
+- 全局镜像源: https://pypi.tuna.tsinghua.edu.cn/simple
+
+可用的PyPI源对比:
+┌─────────────────┬────────────────────────────────────┬─────────┐
+│ 镜像源          │ 地址                               │ 速度    │
+├─────────────────┼────────────────────────────────────┼─────────┤
+│ 官方PyPI        │ https://pypi.org/simple/           │ 稳定    │
+│ 阿里云          │ https://mirrors.aliyun.com/pypi    │ 很快    │
+│ 腾讯云          │ https://mirrors.cloud.tencent.com  │ 很快    │
+│ 清华大学        │ https://pypi.tuna.tsinghua.edu.cn  │ 快(故障)│
+│ 豆瓣(已关闭)    │ https://pypi.douban.com/simple     │ ✗      │
+└─────────────────┴────────────────────────────────────┴─────────┘
+
+
+【总结】
+
+问题: pip使用的清华镜像出现了故障或不支持某些包
+解决: 切换到官方PyPI源或其他可用镜像
+
+建议执行以下命令:
+.venv\Scripts\pip config set global.index-url https://pypi.org/simple/
+.venv\Scripts\pip install --upgrade pip
+
+然后您就可以正常使用pip安装任何包了。
