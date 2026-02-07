@@ -1,0 +1,50 @@
+PDF转Word脚本 - 快速参考
+
+【最简单的用法】
+.\.venv\Scripts\python pdf_to_word_simple.py
+
+【指定输入输出文件】
+.\.venv\Scripts\python pdf_to_word_simple.py "input.pdf" "output.docx"
+
+【Linux/Mac】
+./.venv/bin/python pdf_to_word_simple.py "input.pdf" "output.docx"
+
+【三种脚本版本】
+
+1. pdf_to_word_simple.py ✓ 推荐
+   - 无需安装任何依赖
+   - 生成Word框架
+   - 如果安装了LibreOffice会自动使用
+
+2. pdf_to_word_alternative.py
+   - 需要: pip install pymupdf python-docx
+   - 可以提取文本和图片
+   - 两种转换模式
+
+3. pdf_to_word.py
+   - 需要: pip install pdf2docx python-docx
+   - 最完整的格式保留
+   - 可能需要网络下载库
+
+【获得完整转换效果】
+→ 安装 LibreOffice (https://www.libreoffice.org)
+→ 脚本会自动检测并使用
+
+【在Python代码中使用】
+from pdf_to_word_simple import pdf_to_word_manual_method
+pdf_to_word_manual_method("input.pdf", "output.docx")
+
+【批处理多个PDF】
+for pdf in *.pdf:
+    .\.venv\Scripts\python pdf_to_word_simple.py "$pdf"
+
+【常见错误】
+错误: PDF文件不存在 → 检查文件路径
+错误: Permission denied → 检查文件夹权限
+输出文件很小(1-2KB) → 正常，这是框架。安装LibreOffice获得完整转换
+
+【提示】
+✓ 标准库版本最稳定（推荐日常使用）
+✓ 第一次运行可以选择图形界面或命令行模式
+✓ 没有网络时也能使用pdf_to_word_simple.py
+✓ 要保留原始PDF格式，需要LibreOffice或pdf2docx库
